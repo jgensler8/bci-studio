@@ -1,25 +1,23 @@
 // @flow
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './Counter.css';
-import routes from '../constants/routes';
+import Button from '@material-ui/core/Button';
 
 type Props = {
-  eegEvent: () => void,
+  eegEvent: () => void
 };
 
 export default class EEGEmitter extends Component<Props> {
   props: Props;
 
   render() {
-    const {
-      eegEvent
-    } = this.props;
-    console.log("render -- EEGEmitter.js -- ")
+    const { eegEvent } = this.props;
+    console.log('render -- EEGEmitter.js -- ');
     return (
-        <React.Fragment>
-            <button onClick={eegEvent}>Click to generate a fake event</button>
-        </React.Fragment>
+      <React.Fragment>
+        <Button variant="contained" color="primary" onClick={eegEvent}>
+          Click to generate a fake event
+        </Button>
+      </React.Fragment>
     );
   }
 }

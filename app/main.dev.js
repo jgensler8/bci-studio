@@ -13,6 +13,11 @@
 import { app, BrowserWindow } from 'electron';
 import MenuBuilder from './menu';
 
+// TODO: Going to leave this here until needed
+// app
+//   .commandLine
+//   .appendSwitch('enable-web-bluetooth', true);
+
 let mainWindow = null;
 
 if (process.env.NODE_ENV === 'production') {

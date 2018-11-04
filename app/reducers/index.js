@@ -1,7 +1,6 @@
 // @flow
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import counter from './counter';
 import devices from './devices';
 import client from './client';
 
