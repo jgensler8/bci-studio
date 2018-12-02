@@ -6,16 +6,22 @@ import DeviceComponent from './Device';
 import { EEGDevice } from '../types/Device';
 
 type Props = {
+  deviceSelected: () => void,
+  selectedDevice: EEGDevice,
   searchDevices: () => void,
-  devices: Array<EEGDevice>
+  devices: Array<EEGDevice>,
 };
 
 export default class Devices extends Component<Props> {
   props: Props;
 
   render() {
-    const { searchDevices, devices } = this.props;
-    console.log('render -- Devices.js -- ', devices);
+    const {
+      deviceSelected,
+      selectedDevice,
+      searchDevices,
+      devices,
+    } = this.props;
     return (
       <React.Fragment>
         <Typography variant="h3" component="h2">
@@ -25,7 +31,16 @@ export default class Devices extends Component<Props> {
           <React.Fragment>
             <Typography component="div">
               {devices.map(device => (
-                <DeviceComponent key={device.name} device={device} />
+                <DeviceComponent
+                  key={device.name}
+                  device={device}
+                  selected={
+                    selectedDevice.name
+                      ? selectedDevice.name === device.name
+                      : false
+                  }
+                  deviceSelected={deviceSelected}
+                />
               ))}
             </Typography>
             <Typography component="div">

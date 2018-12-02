@@ -6,31 +6,35 @@ export const CONNECT_HEADSET = 'CONNECT_HEADSET';
 export const DISCONNECT_HEADSET = 'DISCONNECT_HEADSET';
 export const SEARCH_DEVICES = 'SEARCH_DEVICES';
 export const DEVICES_UPDATED = 'DEVICES_UPDATED';
+export const DEVICE_SELECTED = 'DEVICE_SELECTED';
 
 export function connect() {
-  console.log('connect -- connect.js');
   return {
-    type: CONNECT_HEADSET
+    type: CONNECT_HEADSET,
   };
 }
 
 export function disconnect() {
-  console.log('disconnect -- connect.js');
   return {
-    type: DISCONNECT_HEADSET
+    type: DISCONNECT_HEADSET,
   };
 }
 
 export function devicesUpdatedEvent(devices: Array<EEGDevice>) {
   return {
     type: DEVICES_UPDATED,
-    devices
+    devices,
+  };
+}
+
+export function deviceSelected(device: EEGDevice) {
+  return {
+    type: DEVICE_SELECTED,
+    device,
   };
 }
 
 export function searchDevices() {
-  console.log('searchDevices -- connect.js');
-
   return function(dispatch) {
     // Search for Emotiv Devices
     const socket = new WebSocket('wss://emotivcortex.com:54321');
@@ -40,8 +44,8 @@ export function searchDevices() {
           jsonrpc: '2.0',
           method: 'queryHeadsets',
           params: {},
-          id: 1
-        })
+          id: 1,
+        }),
       );
     };
     socket.onerror = function(ev) {

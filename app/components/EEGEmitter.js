@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 
 type Props = {
-  eegEvent: () => void
+  eegEvent: () => void,
 };
 
 export default class EEGEmitter extends Component<Props> {
@@ -11,7 +11,6 @@ export default class EEGEmitter extends Component<Props> {
 
   render() {
     const { eegEvent } = this.props;
-    console.log('render -- EEGEmitter.js -- ');
     return (
       <React.Fragment>
         <Button variant="contained" color="primary" onClick={eegEvent}>

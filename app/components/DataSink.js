@@ -5,28 +5,28 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import { EEGDevice } from '../types/Device';
+import { DataSink } from '../types/DataSink';
 
 type Props = {
-  device: EEGDevice,
+  dataSink: DataSink,
   selected: boolean,
-  deviceSelected: () => void,
+  dataSinkSelected: () => void,
 };
 
-export default class DeviceComponent extends Component<Props> {
+export default class DataSinkComponent extends Component<Props> {
   props: Props;
 
   render() {
-    const { device, selected, deviceSelected } = this.props;
+    const { dataSink, selected, dataSinkSelected } = this.props;
     return (
       <Card>
         <CardContent>
-          <Typography>Name: {device.name}</Typography>
+          <Typography>Name: {dataSink.name}</Typography>
           <Typography component="p">Details: TODO</Typography>
           <Radio
             checked={selected}
-            onChange={() => deviceSelected(device)}
-            value={device.name}
+            onChange={() => dataSinkSelected(dataSink)}
+            value={dataSink.name}
             name="select"
             aria-label="Select"
           />
