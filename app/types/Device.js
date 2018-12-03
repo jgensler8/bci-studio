@@ -1,12 +1,12 @@
 // @flow
 import { Buffer, Event, Field } from './Buffer';
 
-export interface EEGDevice {
-  name: string;
-
-  startEmitting(buffer: Buffer): void;
-
-  stopEmitting(): void;
+export class EEGEvent implements Event {
+  constructor(SENSOR_AF3: number) {
+    this.type = 'EEGEvent';
+    this.timestamp = Date.now();
+    this.values = [new Field('AF3', `${SENSOR_AF3}`, 'FLOAT')];
+  }
 }
 
 function randomEEGEvent(): EEGEvent {
@@ -15,11 +15,12 @@ function randomEEGEvent(): EEGEvent {
 
 export { randomEEGEvent };
 
-export class EEGEvent implements Event {
-  constructor(SENSOR_AF3: number) {
-    this.time = new Date();
-    this.values = [new Field('AF3', `${SENSOR_AF3}`)];
-  }
+export interface EEGDevice {
+  name: string;
+
+  startEmitting(buffer: Buffer<EEGEvent>): void;
+
+  stopEmitting(): void;
 }
 
 /*
@@ -48,7 +49,7 @@ export class EmotivEPOCPlus implements EEGDevice {
   }
 }
 
-async function uploadRandomDataToBuffer(buffer: Buffer) {
+async function uploadRandomDataToBuffer(buffer: Buffer<EEGEvent>) {
   buffer.recordEvent(randomEEGEvent());
 }
 
@@ -61,7 +62,7 @@ export class GenericEEGDevice implements EEGDevice {
     this.name = name;
   }
 
-  async startEmitting(buffer: Buffer) {
+  async startEmitting(buffer: Buffer<EEGEvent>) {
     this.emitInterval = window.setInterval(
       uploadRandomDataToBuffer,
       1000,

@@ -5,30 +5,40 @@ export class Field {
 
   value: string;
 
-  constructor(name: string, value: string) {
+  type: string;
+
+  constructor(name: string, value: string, type: string) {
     this.name = name;
     this.value = value;
+    this.type = type;
   }
 }
 
 export interface Event {
-  time: Date;
+  timestamp: number;
+
+  type: string;
 
   values: Array<Field>;
 }
 
-export interface Buffer {
-  recordEvent(event: Event): void;
+export interface Buffer<T: Event> {
+  recordEvent(event: T): void;
+  getEvents(): Array<T>;
 }
 
-export class InMemoryBuffer implements Buffer {
-  events: Array<Event>;
+export class InMemoryBuffer<T: Event> implements Buffer {
+  events: Array<T>;
 
   constructor() {
     this.events = [];
   }
 
-  async recordEvent(event: Event) {
+  async recordEvent(event: T) {
     this.events.push(event);
+  }
+
+  getEvents(): Array<T> {
+    return this.events;
   }
 }

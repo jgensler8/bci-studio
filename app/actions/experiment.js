@@ -4,12 +4,13 @@ import { DataSink } from '../types/DataSink';
 import { BasicUploadExperiment, runExperiment } from '../types/Experiment';
 
 /* eslint-disable import/prefer-default-export */
-export function startExperiment(device: EEGDevice, dataSink: DataSink) {
+export function startExperiment(
+  name: string,
+  device: EEGDevice,
+  dataSink: DataSink,
+) {
   /* eslint-disable import/prefer-default-export */
   return async function(dispatch) {
-    runExperiment(
-      new BasicUploadExperiment('test', device, dataSink),
-      dispatch,
-    );
+    runExperiment(new BasicUploadExperiment(name, device, dataSink), dispatch);
   };
 }

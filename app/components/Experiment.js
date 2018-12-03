@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { Button } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 import Card from '@material-ui/core/Card';
 import { EEGDevice, isNullDevice } from '../types/Device';
 import { DataSink, isNullDataSink } from '../types/DataSink';
@@ -18,6 +19,7 @@ export default class ExperimentComponent extends Component<Props> {
   props: Props;
 
   render() {
+    this.experimentName = 'test';
     const { startExperiment, device, dataSink, screen } = this.props;
     console.log(screen);
     return (
@@ -26,10 +28,22 @@ export default class ExperimentComponent extends Component<Props> {
           Experiment
         </Typography>
         <Card>
+          <TextField
+            id="experimentname"
+            label="Experiment Name"
+            value={this.experimentName}
+          />
+
           <React.Fragment>
             {!isNullDataSink(dataSink) && !isNullDevice(device) ? (
               <React.Fragment>
-                <Button onClick={() => startExperiment(device, dataSink)}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() =>
+                    startExperiment(this.experimentName, device, dataSink)
+                  }
+                >
                   Start Basic Experiment
                 </Button>
               </React.Fragment>
@@ -40,7 +54,6 @@ export default class ExperimentComponent extends Component<Props> {
               </React.Fragment>
             )}
           </React.Fragment>
-          {/* { React.createElement(screen, {}) } */}
           {screen.render()}
         </Card>
       </React.Fragment>

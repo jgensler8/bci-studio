@@ -96,8 +96,9 @@ export interface Trial {
 
 export class ActionStartEvent implements Event {
   constructor(action: Action) {
-    this.time = new Date();
-    this.values = [new Field('action_name', action.name)];
+    this.type = 'ActionStart';
+    this.timestamp = Date.now();
+    this.values = [new Field('action_name', action.name, 'STRING')];
   }
 }
 
@@ -166,11 +167,11 @@ function BasicVisualTrialFactory(id: number): Trial {
   return builder
     .withId(id)
     .show(new BlankScreen())
-    .wait(3000)
+    .wait(500)
     .show(new GreenScreen())
-    .wait(1000)
+    .wait(500)
     .show(new BlankScreen())
-    .wait(3000)
+    .wait(500)
     .build();
 }
 
@@ -203,8 +204,8 @@ export class BasicUploadExperiment implements Experiment {
     this.dataSink = dataSink;
     this.trials = [
       BasicVisualTrialFactory(1),
-      BasicVisualTrialFactory(2),
-      BasicVisualTrialFactory(3),
+      // BasicVisualTrialFactory(2),
+      // BasicVisualTrialFactory(3),
     ];
   }
 
@@ -251,18 +252,22 @@ export async function runExperiment(
   dispatch: () => void,
 ) {
   experiment.preRun();
-  const buffer = new InMemoryBuffer();
+  const eegBuffer = new InMemoryBuffer();
+  const eventBuffer = new InMemoryBuffer();
+  console.log(eegBuffer);
+  console.log(eventBuffer);
   /* eslint-disable no-restricted-syntax */
   for (const trial of experiment.trials) {
     /* eslint-enable no-restricted-syntax */
     trial.preRun();
-    experiment.device.startEmitting(buffer);
+    experiment.device.startEmitting(eegBuffer);
     /* eslint-disable no-await-in-loop */
-    await trial.run(dispatch, buffer);
+    await trial.run(dispatch, eventBuffer);
     await experiment.device.stopEmitting();
     /* eslint-enable no-await-in-loop */
     trial.postRun();
   }
-  experiment.dataSink.upload(buffer);
+  experiment.dataSink.upload(eegBuffer);
+  experiment.dataSink.upload(eventBuffer);
   experiment.postRun();
 }
