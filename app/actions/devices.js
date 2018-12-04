@@ -1,6 +1,6 @@
 // @flow
 
-import { EEGDevice, EmotivEPOCPlus, GenericEEGDevice } from '../types/Device';
+import { EEGDevice, EmotivEPOCPlus } from '../types/Device';
 
 export const CONNECT_HEADSET = 'CONNECT_HEADSET';
 export const DISCONNECT_HEADSET = 'DISCONNECT_HEADSET';
@@ -76,8 +76,5 @@ export function searchDevices() {
 
     // Search for OpenBCI Devices
     // TODO: Not sure this is possible as it uses RFDuino instead of native OS bluetooth
-
-    // Fake Device
-    dispatch(devicesUpdatedEvent([new GenericEEGDevice('FakeDevice')]));
   };
 }

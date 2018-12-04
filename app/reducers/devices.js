@@ -6,10 +6,13 @@ import {
   DEVICE_SELECTED,
 } from '../actions/devices';
 import type { Action } from './types';
-import { NullDevice } from '../types/Device';
+import { NullDevice, GenericEEGDevice } from '../types/Device';
 
 export default function devices(
-  state: Object = { devices: [], selectedDevice: NullDevice },
+  state: Object = {
+    devices: [new GenericEEGDevice('FakeDevice')],
+    selectedDevice: NullDevice,
+  },
   action: Action,
 ) {
   switch (action.type) {

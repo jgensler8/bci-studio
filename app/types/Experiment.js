@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { EEGDevice, NullDevice } from './Device';
 import { DataSink, NullDataSink } from './DataSink';
-import { Buffer, InMemoryBuffer, Event, Field } from './Buffer';
+import { Buffer, InMemoryBuffer, Event, Field, generateUID } from './Buffer';
 
 export const START_BASIC_EXPERIMENT = 'START_BASIC_EXPERIMENT';
 export const EXPERIMENT_SHOW_SCREEN = 'EXPERIMENT_SHOW_SCREEN';
@@ -87,16 +87,16 @@ export interface Trial {
 
   actions: Array<Action>;
 
-  preRun(): void;
+  preRun(buffer: Buffer): void;
 
   run(dispatch: () => void): void;
 
-  postRun(): void;
+  postRun(buffer: Buffer): void;
 }
 
 export class ActionStartEvent implements Event {
   constructor(action: Action) {
-    this.type = 'ActionStart';
+    this.type = 'ActionStartEvent';
     this.timestamp = Date.now();
     this.values = [new Field('action_name', action.name, 'STRING')];
   }
@@ -112,8 +112,8 @@ export class RunnableTrial implements Trial {
     this.actions = actions;
   }
 
-  preRun() {
-    console.log(this.id);
+  preRun(buffer: Buffer) {
+    console.log(buffer.uid, this.id);
   }
 
   async run(dispatch: () => void, buffer: Buffer) {
@@ -128,8 +128,8 @@ export class RunnableTrial implements Trial {
     }
   }
 
-  postRun() {
-    console.log(this.id);
+  postRun(buffer: Buffer) {
+    console.log(buffer.uid, this.id);
   }
 }
 
@@ -175,6 +175,17 @@ function BasicVisualTrialFactory(id: number): Trial {
     .build();
 }
 
+export class TrialEvent implements Event {
+  constructor(type: string, trial: Trial) {
+    this.type = 'TrialEvent';
+    this.timestamp = Date.now();
+    this.values = [
+      new Field('type', type, 'STRING'),
+      new Field('id', trial.id, 'INTEGER'),
+    ];
+  }
+}
+
 export interface Experiment {
   name: string;
 
@@ -184,9 +195,9 @@ export interface Experiment {
 
   trials: Array<Trial>;
 
-  preRun(): void;
+  preRun(buffer: Buffer): void;
 
-  postRun(): void;
+  postRun(buffer: Buffer): void;
 }
 
 export class BasicUploadExperiment implements Experiment {
@@ -204,17 +215,17 @@ export class BasicUploadExperiment implements Experiment {
     this.dataSink = dataSink;
     this.trials = [
       BasicVisualTrialFactory(1),
-      // BasicVisualTrialFactory(2),
+      BasicVisualTrialFactory(2),
       // BasicVisualTrialFactory(3),
     ];
   }
 
-  preRun(): void {
-    console.log(this.name);
+  preRun(buffer: Buffer): void {
+    console.log(buffer.uid, this.name);
   }
 
-  postRun(): void {
-    console.log(this.name, new Date().toDateString());
+  postRun(buffer: Buffer): void {
+    console.log(buffer.uid, this.name, new Date().toDateString());
   }
 }
 
@@ -234,12 +245,23 @@ export class EmptyExperiment implements Experiment {
     this.trials = [];
   }
 
-  preRun(): void {
-    console.log(this.name);
+  preRun(buffer: Buffer): void {
+    console.log(buffer.uid, this.name);
   }
 
-  postRun(): void {
-    console.log(this.name);
+  postRun(buffer: Buffer): void {
+    console.log(buffer.uid, this.name);
+  }
+}
+
+export class ExperimentEvent implements Event {
+  constructor(type: string, experiment: Experiment) {
+    this.type = 'ExperimentEvent';
+    this.timestamp = Date.now();
+    this.values = [
+      new Field('type', type, 'STRING'),
+      new Field('name', experiment.name, 'STRING'),
+    ];
   }
 }
 
@@ -251,23 +273,30 @@ export async function runExperiment(
   experiment: Experiment,
   dispatch: () => void,
 ) {
-  experiment.preRun();
-  const eegBuffer = new InMemoryBuffer();
-  const eventBuffer = new InMemoryBuffer();
-  console.log(eegBuffer);
-  console.log(eventBuffer);
+  const uid = generateUID();
+  const eegBuffer = new InMemoryBuffer(uid);
+  const eventBuffer = new InMemoryBuffer(uid);
+  const experimentBuffer = new InMemoryBuffer(uid);
+  const trialBuffer = new InMemoryBuffer(uid);
+  experimentBuffer.recordEvent(new ExperimentEvent('start', experiment));
+  experiment.preRun(experimentBuffer);
   /* eslint-disable no-restricted-syntax */
   for (const trial of experiment.trials) {
     /* eslint-enable no-restricted-syntax */
-    trial.preRun();
-    experiment.device.startEmitting(eegBuffer);
+    trialBuffer.recordEvent(new TrialEvent('start', trial));
+    trial.preRun(trialBuffer);
     /* eslint-disable no-await-in-loop */
+    await experiment.device.startEmitting(eegBuffer);
     await trial.run(dispatch, eventBuffer);
     await experiment.device.stopEmitting();
     /* eslint-enable no-await-in-loop */
-    trial.postRun();
+    trial.postRun(trialBuffer);
+    trialBuffer.recordEvent(new TrialEvent('end', trial));
   }
+  experiment.postRun(experimentBuffer);
+  experimentBuffer.recordEvent(new ExperimentEvent('end', experiment));
   experiment.dataSink.upload(eegBuffer);
   experiment.dataSink.upload(eventBuffer);
-  experiment.postRun();
+  experiment.dataSink.upload(trialBuffer);
+  experiment.dataSink.upload(experimentBuffer);
 }
