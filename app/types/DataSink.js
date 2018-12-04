@@ -50,12 +50,12 @@ export class GCPDataSink implements DataSink {
     console.log(this.name, buffer);
 
     // create dataset
-    const dataset = await this.bigquery.datasets.get({
-      projectId: this.projectId,
-      datasetId: this.name,
-    });
-
-    if (dataset === null) {
+    try {
+      await this.bigquery.datasets.get({
+        projectId: this.projectId,
+        datasetId: this.name,
+      });
+    } catch (e) {
       await this.bigquery.datasets.insert({
         projectId: this.projectId,
         requestBody: {

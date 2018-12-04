@@ -4,8 +4,12 @@ import { EEGDevice, NullDevice } from './Device';
 import { DataSink, NullDataSink } from './DataSink';
 import { Buffer, InMemoryBuffer, Event, Field, generateUID } from './Buffer';
 
-export const START_BASIC_EXPERIMENT = 'START_BASIC_EXPERIMENT';
 export const EXPERIMENT_SHOW_SCREEN = 'EXPERIMENT_SHOW_SCREEN';
+
+export const ACTION_ID_WAIT = 0;
+export const ACTION_ID_TRIAL_END = 1;
+export const ACTION_ID_BLANK_SCREEN = 10;
+export const ACTION_ID_GREEN_SCREEN = 11;
 
 type ScreenProps = {
   /* eslint-disable react/no-unused-prop-types */
@@ -20,7 +24,7 @@ export class BlankScreen extends Screen {
 
   constructor() {
     super();
-    this.id = 0;
+    this.id = ACTION_ID_BLANK_SCREEN;
   }
 
   render() {
@@ -32,11 +36,11 @@ const EmptyScreen = new BlankScreen();
 export { EmptyScreen };
 
 export class GreenScreen extends Screen {
-  id: number = 1;
+  id: number;
 
   constructor() {
     super();
-    this.id = 1;
+    this.id = ACTION_ID_GREEN_SCREEN;
   }
 
   render() {
@@ -68,12 +72,12 @@ export function showScreen(dispatch: () => void, screen: Screen) {
 }
 
 export class Action {
-  name: string;
+  id: number;
 
   todo: () => void;
 
-  constructor(name: string, todo: () => void) {
-    this.name = name;
+  constructor(id: number, todo: () => void) {
+    this.id = id;
     this.todo = todo;
   }
 
@@ -98,7 +102,7 @@ export class ActionStartEvent implements Event {
   constructor(action: Action) {
     this.type = 'ActionStartEvent';
     this.timestamp = Date.now();
-    this.values = [new Field('action_name', action.name, 'STRING')];
+    this.values = [new Field('action_id', action.id, 'INTEGER')];
   }
 }
 
@@ -148,16 +152,17 @@ export class TrialBuilder {
   }
 
   wait(waitMillis: number): TrialBuilder {
-    this.actions.push(new Action('wait', waitWrapper(waitMillis)));
+    this.actions.push(new Action(ACTION_ID_WAIT, waitWrapper(waitMillis)));
     return this;
   }
 
   show(screen: Screen): TrialBuilder {
-    this.actions.push(new Action('screen', showScreenWrapper(screen)));
+    this.actions.push(new Action(screen.id, showScreenWrapper(screen)));
     return this;
   }
 
   build(): Trial {
+    this.actions.push(new Action(ACTION_ID_TRIAL_END, () => {}));
     return new RunnableTrial(this.id, this.actions);
   }
 }
@@ -176,11 +181,11 @@ function BasicVisualTrialFactory(id: number): Trial {
 }
 
 export class TrialEvent implements Event {
-  constructor(type: string, trial: Trial) {
+  constructor(startTimestamp: number, trial: Trial) {
     this.type = 'TrialEvent';
     this.timestamp = Date.now();
     this.values = [
-      new Field('type', type, 'STRING'),
+      new Field('start', new Date(startTimestamp).toISOString(), 'TIMESTAMP'),
       new Field('id', trial.id, 'INTEGER'),
     ];
   }
@@ -255,11 +260,11 @@ export class EmptyExperiment implements Experiment {
 }
 
 export class ExperimentEvent implements Event {
-  constructor(type: string, experiment: Experiment) {
+  constructor(startTimestamp: number, experiment: Experiment) {
     this.type = 'ExperimentEvent';
     this.timestamp = Date.now();
     this.values = [
-      new Field('type', type, 'STRING'),
+      new Field('start', new Date(startTimestamp).toISOString(), 'TIMESTAMP'),
       new Field('name', experiment.name, 'STRING'),
     ];
   }
@@ -278,12 +283,12 @@ export async function runExperiment(
   const eventBuffer = new InMemoryBuffer(uid);
   const experimentBuffer = new InMemoryBuffer(uid);
   const trialBuffer = new InMemoryBuffer(uid);
-  experimentBuffer.recordEvent(new ExperimentEvent('start', experiment));
+  const experimentStartMilliseconds = Date.now();
   experiment.preRun(experimentBuffer);
   /* eslint-disable no-restricted-syntax */
   for (const trial of experiment.trials) {
     /* eslint-enable no-restricted-syntax */
-    trialBuffer.recordEvent(new TrialEvent('start', trial));
+    const trialStartMilliseconds = Date.now();
     trial.preRun(trialBuffer);
     /* eslint-disable no-await-in-loop */
     await experiment.device.startEmitting(eegBuffer);
@@ -291,12 +296,14 @@ export async function runExperiment(
     await experiment.device.stopEmitting();
     /* eslint-enable no-await-in-loop */
     trial.postRun(trialBuffer);
-    trialBuffer.recordEvent(new TrialEvent('end', trial));
+    trialBuffer.recordEvent(new TrialEvent(trialStartMilliseconds, trial));
   }
   experiment.postRun(experimentBuffer);
-  experimentBuffer.recordEvent(new ExperimentEvent('end', experiment));
-  experiment.dataSink.upload(eegBuffer);
-  experiment.dataSink.upload(eventBuffer);
-  experiment.dataSink.upload(trialBuffer);
-  experiment.dataSink.upload(experimentBuffer);
+  experimentBuffer.recordEvent(
+    new ExperimentEvent(experimentStartMilliseconds, experiment),
+  );
+  await experiment.dataSink.upload(eegBuffer);
+  await experiment.dataSink.upload(eventBuffer);
+  await experiment.dataSink.upload(trialBuffer);
+  await experiment.dataSink.upload(experimentBuffer);
 }

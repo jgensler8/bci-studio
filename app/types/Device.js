@@ -1,17 +1,9 @@
 // @flow
 import { Buffer, Event, Field } from './Buffer';
 
-export class EEGEvent implements Event {
-  constructor(SENSOR_AF3: number) {
-    this.type = 'EEGEvent';
-    this.timestamp = Date.now();
-    this.values = [new Field('AF3', `${SENSOR_AF3}`, 'FLOAT')];
-  }
-}
-
-export class POWEvent implements Event {
+export class PowerEvent implements Event {
   constructor(powValues: Array<number>) {
-    this.type = 'POWEvent';
+    this.type = 'PowerEvent';
     this.timestamp = Date.now();
     this.values = [
       // AF3
@@ -102,16 +94,17 @@ export class POWEvent implements Event {
   }
 }
 
-function randomEEGEvent(): EEGEvent {
-  return new EEGEvent(Math.random());
+function randomPowerEvent(): PowerEvent {
+  const randomPowerEvents = Array.from({ length: 70 }, () => Math.random());
+  return new PowerEvent(randomPowerEvents);
 }
 
-export { randomEEGEvent };
+export { randomPowerEvent };
 
 export interface EEGDevice {
   name: string;
 
-  startEmitting(buffer: Buffer<EEGEvent>): Promise;
+  startEmitting(buffer: Buffer<PowerEvent>): Promise;
 
   stopEmitting(): void;
 }
@@ -152,7 +145,7 @@ export class EmotivEPOCPlus implements EEGDevice {
     this.streams = ['pow'];
   }
 
-  async startEmitting(buffer: Buffer<EEGEvent>) {
+  async startEmitting(buffer: Buffer<PowerEvent>) {
     this.socket = new WebSocket('wss://emotivcortex.com:54321');
 
     return new Promise((resolve, reject) => {
@@ -276,8 +269,7 @@ export class EmotivEPOCPlus implements EEGDevice {
           }
         } else {
           console.log(response);
-          // buffer.recordEvent(new EEGEvent(response.pow[0]));
-          buffer.recordEvent(new POWEvent(response.pow));
+          buffer.recordEvent(new PowerEvent(response.pow));
         }
       };
     });
@@ -314,8 +306,8 @@ export class EmotivEPOCPlus implements EEGDevice {
   }
 }
 
-async function uploadRandomDataToBuffer(buffer: Buffer<EEGEvent>) {
-  buffer.recordEvent(randomEEGEvent());
+async function uploadRandomDataToBuffer(buffer: Buffer<PowerEvent>) {
+  buffer.recordEvent(randomPowerEvent());
 }
 
 export class GenericEEGDevice implements EEGDevice {
@@ -325,10 +317,10 @@ export class GenericEEGDevice implements EEGDevice {
     this.name = name;
   }
 
-  async startEmitting(buffer: Buffer<EEGEvent>) {
+  async startEmitting(buffer: Buffer<PowerEvent>) {
     this.emitInterval = window.setInterval(
       uploadRandomDataToBuffer,
-      1000,
+      250,
       buffer,
     );
   }
