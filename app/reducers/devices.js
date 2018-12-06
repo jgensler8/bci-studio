@@ -4,6 +4,7 @@ import {
   DISCONNECT_HEADSET,
   DEVICES_UPDATED,
   DEVICE_SELECTED,
+  TOGGLE_COLLAPSE,
 } from '../actions/devices';
 import type { Action } from './types';
 import { NullDevice, GenericEEGDevice } from '../types/Device';
@@ -12,10 +13,17 @@ export default function devices(
   state: Object = {
     devices: [new GenericEEGDevice('FakeDevice')],
     selectedDevice: NullDevice,
+    collapseState: true,
   },
   action: Action,
 ) {
   switch (action.type) {
+    case TOGGLE_COLLAPSE:
+      return {
+        devices: state.devices,
+        selectedDevice: state.selectedDevice,
+        collapseState: !state.collapseState,
+      };
     case CONNECT_HEADSET:
       return {
         devices: [{ name: 'mydevice', key: '123' }],

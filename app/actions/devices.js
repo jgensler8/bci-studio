@@ -7,6 +7,7 @@ export const DISCONNECT_HEADSET = 'DISCONNECT_HEADSET';
 export const SEARCH_DEVICES = 'SEARCH_DEVICES';
 export const DEVICES_UPDATED = 'DEVICES_UPDATED';
 export const DEVICE_SELECTED = 'DEVICE_SELECTED';
+export const TOGGLE_COLLAPSE = 'TOGGLE_COLLAPSE';
 
 export function connect() {
   return {
@@ -76,5 +77,11 @@ export function searchDevices() {
 
     // Search for OpenBCI Devices
     // TODO: Not sure this is possible as it uses RFDuino instead of native OS bluetooth
+  };
+}
+
+export function toggleCollapse() {
+  return {
+    type: TOGGLE_COLLAPSE,
   };
 }

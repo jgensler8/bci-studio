@@ -10,6 +10,7 @@ import * as ExperimentActions from '../actions/experiment';
 
 function mapStateToProps(state: Object) {
   return {
+    collapseState: state.devices.collapseState,
     devices: state.devices.devices,
     selectedDevice: state.devices.selectedDevice,
     dataSinks: state.dataSinks.dataSinks,
