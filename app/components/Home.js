@@ -33,7 +33,12 @@ export default class Home extends Component<Props> {
         <CardActions>
           <Link to={routes.CONNECT}>
             <Button size="small" variant="contained" color="primary">
-              Get Started
+              Start An Experiment
+            </Button>
+          </Link>
+          <Link to={routes.DATA}>
+            <Button size="small" variant="contained" color="primary">
+              Analyze You Data
             </Button>
           </Link>
         </CardActions>

@@ -1,9 +1,11 @@
 // @flow
 import { Buffer, Event, Field } from './Buffer';
 
+export const PowerEventTypeName = 'PowerEvent';
+
 export class PowerEvent implements Event {
   constructor(powValues: Array<number>) {
-    this.type = 'PowerEvent';
+    this.type = PowerEventTypeName;
     this.timestamp = Date.now();
     this.values = [
       // AF3

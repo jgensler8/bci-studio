@@ -1,4 +1,5 @@
 {
   "HOME": "/",
-  "CONNECT": "/connect"
+  "CONNECT": "/connect",
+  "DATA": "/data"
 }

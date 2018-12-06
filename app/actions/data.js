@@ -1,16 +1,24 @@
 // @flow
-import { DataSink, GCPDataSink } from '../types/DataSink';
+import {
+  Dataset,
+  DatasetProvider,
+  BigQueryDatasetProvider,
+} from '../types/Data';
 
-export const NEW_DATA_SINK = 'NEW_DATA_SINK';
+export const FOUND_DATASETS = 'FOUND_DATASETS';
 export const FILE_UPLOADED = 'FILE_UPLOADED';
 export const FILE_CANCELLED = 'FILE_CANCELLED';
 export const INVALID_CREDENTIALS_FILE = 'INVALID_CREDENTIALS_FILE';
-export const DATA_SINK_SELECTED = 'DATA_SINK_SELECTED';
+export const DATASET_SELECTED = 'DATASET_SELECTED';
 
-function newDataSinkEvent(dataSink: DataSink) {
+function foundDatasets(
+  datasets: Array<Dataset>,
+  datasetProvider: DatasetProvider,
+) {
   return {
-    type: NEW_DATA_SINK,
-    dataSink,
+    type: FOUND_DATASETS,
+    datasets,
+    datasetProvider,
   };
 }
 
@@ -27,10 +35,10 @@ function credentialsFileCancelledEvent() {
   };
 }
 
-export function dataSinkSelected(dataSink: DataSink) {
+export function datasetSelected(dataset: Dataset) {
   return {
-    type: DATA_SINK_SELECTED,
-    dataSink,
+    type: DATASET_SELECTED,
+    dataset,
   };
 }
 
@@ -39,14 +47,16 @@ export function credentialsFileUploaded(event) {
   return function(dispatch) {
     if (event.target.files.length > 0) {
       const reader = new FileReader();
-      reader.onload = function(loadevent) {
+      reader.onload = async function(loadevent) {
         try {
           const credentials = JSON.parse(loadevent.target.result);
-          const sink = new GCPDataSink('GCPDataSink', credentials);
-          dispatch(newDataSinkEvent(sink));
+          // TODO
+          const provider = new BigQueryDatasetProvider(credentials);
+          const datasets = await provider.getDatasets();
+          dispatch(foundDatasets(datasets, provider));
         } catch (error) {
           console.log(error);
-          dispatch(invalidCredentialsFileEvent(error));
+          dispatch(invalidCredentialsFileEvent('ERROR'));
         }
       };
       reader.readAsText(event.target.files[0]);

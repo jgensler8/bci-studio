@@ -98,9 +98,11 @@ export interface Trial {
   postRun(buffer: Buffer): void;
 }
 
+export const ActionStartEventTypeName = 'ActionStartEvent';
+
 export class ActionStartEvent implements Event {
   constructor(action: Action) {
-    this.type = 'ActionStartEvent';
+    this.type = ActionStartEventTypeName;
     this.timestamp = Date.now();
     this.values = [new Field('action_id', action.id, 'INTEGER')];
   }
@@ -124,7 +126,6 @@ export class RunnableTrial implements Trial {
     /* eslint-disable no-restricted-syntax */
     for (const action of this.actions) {
       /* eslint-enable no-restricted-syntax */
-      // TODO set action event
       buffer.recordEvent(new ActionStartEvent(action));
       /* eslint-disable no-await-in-loop */
       await action.do(dispatch);
@@ -180,9 +181,11 @@ function BasicVisualTrialFactory(id: number): Trial {
     .build();
 }
 
+export const TrialEventTypeName = 'TrialEvent';
+
 export class TrialEvent implements Event {
   constructor(startTimestamp: number, trial: Trial) {
-    this.type = 'TrialEvent';
+    this.type = TrialEventTypeName;
     this.timestamp = Date.now();
     this.values = [
       new Field('start', new Date(startTimestamp).toISOString(), 'TIMESTAMP'),
