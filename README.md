@@ -16,7 +16,7 @@ With this, you should be able to explore a full end to end experiment and test t
 
 - Screen Swap (breifly show a Green screen for ~1 second)
 
-## Custom-Experiments
+## Custom Experiments
 
 **Work in Progress**
 

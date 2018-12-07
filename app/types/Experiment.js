@@ -174,6 +174,13 @@ export class TrialBuilder {
     return this;
   }
 
+  waitBetween(waitMillisLow: number, waitMillisHigh: number): TrialBuilder {
+    const waitMillis =
+      waitMillisLow +
+      Math.floor(Math.random() * (waitMillisHigh - waitMillisLow));
+    return this.wait(waitMillis);
+  }
+
   show(screen: Screen): TrialBuilder {
     this.actions.push(new Action(screen.id, showScreenWrapper(screen)));
     return this;
@@ -190,11 +197,11 @@ function BasicVisualTrialFactory(id: number): Trial {
   return builder
     .withId(id)
     .show(new BlankScreen())
-    .wait(500)
+    .waitBetween(1000, 4000)
     .show(new GreenScreen())
     .wait(500)
     .show(new BlankScreen())
-    .wait(500)
+    .waitBetween(1000, 4000)
     .build();
 }
 
@@ -241,7 +248,7 @@ export class BasicUploadExperiment implements Experiment {
     this.trials = [
       BasicVisualTrialFactory(1),
       BasicVisualTrialFactory(2),
-      // BasicVisualTrialFactory(3),
+      BasicVisualTrialFactory(3),
     ];
   }
 

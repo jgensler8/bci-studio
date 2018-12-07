@@ -41,6 +41,16 @@ export default class Home extends Component<Props> {
               Analyze You Data
             </Button>
           </Link>
+          <Link to={routes.TRAIN}>
+            <Button size="small" variant="contained" color="primary">
+              Train a Model
+            </Button>
+          </Link>
+          <Link to={routes.PREDICT}>
+            <Button size="small" variant="contained" color="primary">
+              Run Live Predictions
+            </Button>
+          </Link>
         </CardActions>
       </Card>
     );

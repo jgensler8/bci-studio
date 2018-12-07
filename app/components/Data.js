@@ -92,7 +92,7 @@ export default class Data extends Component<Props> {
           <CardActions>
             <Button
               size="small"
-              onClick={() => datasetProvider.fuse(selectedDataset)}
+              onClick={() => datasetProvider.fuse(selectedDataset, 0)}
             >
               Fuse
             </Button>
