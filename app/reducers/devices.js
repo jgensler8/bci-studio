@@ -28,13 +28,19 @@ export default function devices(
       return {
         devices: [{ name: 'mydevice', key: '123' }],
         selectedDevice: state.selectedDevice,
+        collapseState: state.collapseState,
       };
     case DISCONNECT_HEADSET:
-      return { devices: [], selectedDevice: state.selectedDevice };
+      return {
+        devices: [],
+        selectedDevice: state.selectedDevice,
+        collapseState: state.collapseState,
+      };
     case DEVICE_SELECTED:
       return {
         devices: state.devices,
         selectedDevice: action.device,
+        collapseState: state.collapseState,
       };
     case DEVICES_UPDATED:
       return {
@@ -50,6 +56,7 @@ export default function devices(
           }),
         ],
         selectedDevice: state.selectedDevice,
+        collapseState: state.collapseState,
       };
     default:
       return state;

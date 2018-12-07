@@ -53,12 +53,13 @@ At the time of this commit, augmenting the fusion time isn't implemented.
 This part of the project is executed manually until the previous steps have clear APIs.
 
 1. Download the default machine learning model here: TODO (based on [the cloudml-template](https://github.com/GoogleCloudPlatform/cloudml-samples/tree/master/cloudml-template))
-2. Located your fusion table
-3. Download data from the fusion table as `csv` and place in the `./data` folder. Create two copies of your file: `train-data-<something>.csv` and `valid-data-<something>.csv`.
-4. Optional: update columns specific to your device or experiment
-5. `../scripts/local-train.sh`
-6. Modify the sample data `./data/new-data.json`
-7. `../scripts/local-predict.sh`
+2. Locate your fusion table in your Cloud Provider.
+3. Download data from the fusion table as `csv` and place in the `./data` folder.
+4. Create two copies of your file: `train-data-<something>.csv` and `valid-data-<something>.csv`.
+5. Optional: update columns specific to your device or experiment
+6. `../scripts/local-train.sh`
+7. Modify the sample data `./data/new-data.json`
+8. `../scripts/local-predict.sh`
 
 ## About BCI Studio
 
@@ -66,6 +67,22 @@ This part of the project is executed manually until the previous steps have clea
 - Written in [Flow](https://flow.org/en/docs/).
 - Uses [Redux](https://redux.js.org/introduction/motivation) for state management.
 - UI build with [material-ui](https://material-ui.com/layout/grid/)
+
+## Developing BCI Studio
+
+To run locally:
+
+```
+yarn dev
+```
+
+**Note: sometimes webpack will serve "old" versions of your code and the application doesn't reflect the most recent "save." After changing code, you may have to refresh the Electron app (Command + R)**
+
+To run pre-commit checks (style linting):
+
+```
+npm run -s precommit
+```
 
 ## Other Links
 

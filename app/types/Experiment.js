@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import Grid from '@material-ui/core/Grid';
 import { EEGDevice, NullDevice } from './Device';
 import { DataSink, NullDataSink } from './DataSink';
 import { Buffer, InMemoryBuffer, Event, Field, generateUID } from './Buffer';
@@ -28,7 +29,15 @@ export class BlankScreen extends Screen {
   }
 
   render() {
-    return <div>blank</div>;
+    return (
+      <React.Fragment>
+        <Grid item xs={4} />
+        <Grid item xs={4}>
+          Blank
+        </Grid>
+        <Grid item xs={4} />
+      </React.Fragment>
+    );
   }
 }
 
@@ -44,7 +53,15 @@ export class GreenScreen extends Screen {
   }
 
   render() {
-    return <div>GREEN</div>;
+    return (
+      <React.Fragment>
+        <Grid item xs={4} />
+        <Grid item xs={4} style={{ background: 'green' }}>
+          Green
+        </Grid>
+        <Grid item xs={4} />
+      </React.Fragment>
+    );
   }
 }
 

@@ -5,10 +5,14 @@ import {
   DATA_SINK_SELECTED,
 } from '../actions/dataSink';
 import type { Action } from './types';
-import { NullDataSink } from '../types/DataSink';
+import { NullDataSink, GenericDataSink } from '../types/DataSink';
 
 export default function dataSinks(
-  state: Object = { error: '', dataSinks: [], selectedDataSink: NullDataSink },
+  state: Object = {
+    error: '',
+    dataSinks: [new GenericDataSink('FakeDataSink')],
+    selectedDataSink: NullDataSink,
+  },
   action: Action,
 ) {
   switch (action.type) {
